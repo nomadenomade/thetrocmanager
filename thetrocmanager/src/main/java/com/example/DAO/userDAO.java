@@ -348,197 +348,7 @@ public class userDAO {
 
 	}
 
-	public List<Produkt> produktSuche(String kategorie,String suchbegriff,String umkreis,String online, String stadt,String stadtviertel,String unternehmen,String lat,String lng){
-
-		List<Produkt> list = new ArrayList<>();
-		SimpleDateFormat dataformat = new SimpleDateFormat("dd-MM-yyyy");
-		Date date = new Date();
-		String datestring = dataformat.format(date);
-
-		if(online.equals("heute")) {
-			request ="SELECT * FROM produkte AS p "
-					+ "INNER JOIN verkaufer AS v ON p.idVerkaufer=v.idVerkaufer "
-					+ "INNER JOIN unternehmen AS u ON v.idVerkaufer=u.idVerkaufer "
-					+ "INNER JOIN person AS pers ON v.idPerson= pers.idPerson "
-					+ "WHERE p.kategorie LIKE ? AND p.nameprodukte LIKE ? AND u.stadt LIKE ? AND u.Standort LIKE ? AND u.nameunternehmen LIKE ? "
-					+ " AND p.status='online' AND p.Datum LIKE ?";
-
-			try {
-				preparedstatement = DBconnection.getInstance().getPreparedStatement(request);
-				preparedstatement.setString(1, "%"+kategorie+"%");
-				preparedstatement.setString(2, "%"+suchbegriff+"%");
-				preparedstatement.setString(3, "%"+stadt+"%");
-				preparedstatement.setString(4, "%"+stadtviertel+"%");
-				preparedstatement.setString(5, "%"+unternehmen+"%");
-				preparedstatement.setString(6, "%"+datestring+"%");
-				resultset = preparedstatement.executeQuery();
-
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-
-		}else if(online.equals("2 Tagen")) {
-
-			request ="SELECT * FROM produkte AS p "
-					+ "INNER JOIN verkaufer AS v ON p.idVerkaufer=v.idVerkaufer "
-					+ "INNER JOIN unternehmen AS u ON v.idVerkaufer=u.idVerkaufer "
-					+ "INNER JOIN person AS pers ON v.idPerson= pers.idPerson "
-					+ "WHERE p.kategorie LIKE ? AND p.nameprodukte LIKE ? AND u.stadt LIKE ? AND u.Standort LIKE ? AND u.nameunternehmen LIKE ? "
-					+ " AND p.status='online' AND (p.Datum LIKE ? OR p.Datum LIKE ?OR p.Datum LIKE ? )";
-
-			try {
-				preparedstatement = DBconnection.getInstance().getPreparedStatement(request);
-				preparedstatement.setString(1, "%"+kategorie+"%");
-				preparedstatement.setString(2, "%"+suchbegriff+"%");
-				preparedstatement.setString(3, "%"+stadt+"%");
-				preparedstatement.setString(4, "%"+stadtviertel+"%");
-				preparedstatement.setString(5, "%"+unternehmen+"%");
-				preparedstatement.setString(6, "%"+datestring+"%");
-				preparedstatement.setString(7, "%"+getDateFilter(online,1)+"%");
-				preparedstatement.setString(8, "%"+getDateFilter(online,2)+"%");
-				resultset = preparedstatement.executeQuery();
-
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}else if(online.equals("unbegrenzt")) {
-			request ="SELECT * FROM produkte AS p "
-					+ "INNER JOIN verkaufer AS v ON p.idVerkaufer=v.idVerkaufer "
-					+ "INNER JOIN unternehmen AS u ON v.idVerkaufer=u.idVerkaufer "
-					+ "INNER JOIN person AS pers ON v.idPerson= pers.idPerson "
-					+ "WHERE p.kategorie LIKE ? AND p.nameprodukte LIKE ? AND u.stadt LIKE ? AND u.Standort LIKE ? AND u.nameunternehmen LIKE ? "
-					+ " AND p.status='online'";
-
-
-			try {
-				preparedstatement = DBconnection.getInstance().getPreparedStatement(request);
-				preparedstatement.setString(1, "%"+kategorie+"%");
-				preparedstatement.setString(2, "%"+suchbegriff+"%");
-				preparedstatement.setString(3, "%"+stadt+"%");
-				preparedstatement.setString(4, "%"+stadtviertel+"%");
-				preparedstatement.setString(5, "%"+unternehmen+"%");
-				resultset = preparedstatement.executeQuery();
-
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-
-		}
-
-
-		try {
-
-
-			Produkt produkt =null;
-			Verkaufer verkaufer =null;
-			Person person = null;
-			Unternehmen unternehm =null;
-			double lat2=0,lng2=0;
-			if(resultset!=null) {
-				while(resultset.next()) {
-					lat2 = Double.valueOf(resultset.getString("Latitude"));
-					lng2 = Double.valueOf(resultset.getString("Longitude"));
-					if(!umkreis.equals("unbegrenzt")) {
-						double a = Double.valueOf(umkreis.split("-")[0]);
-						double b = Double.valueOf(umkreis.split("-")[1].split(" ")[0]);
-						
-						double distance = abstand(Double.valueOf(lng),Double.valueOf(lat),lng2,lat2);
-						
-						
-						if(a<distance && distance<=b) {
-							produkt = new Produkt();
-							verkaufer = new Verkaufer();
-							unternehm = new Unternehmen();
-							person = new Person();
-							produkt.setIdProdukt(resultset.getInt("idProdukte"));
-							produkt.setName(resultset.getString("Nameprodukte"));
-							produkt.setBeschreibung(resultset.getString("Beschreibung"));
-							produkt.setMarke(resultset.getString("Marke"));
-							produkt.setPreis(resultset.getString("Preis"));
-							produkt.setWährung(resultset.getString("W�hrung"));
-							produkt.setMenge(resultset.getString("Menge"));
-							produkt.setMenge(resultset.getString("Mengeeinheit"));
-							produkt.setKategorie(resultset.getString("Kategorie"));
-							produkt.setDauerbisabholung(resultset.getString("Dauerbisabholung"));
-							produkt.setOnlinebis(resultset.getString("Onlinebis"));
-							produkt.setAblaufdatum(resultset.getString("Ablaufdatum"));
-							produkt.setOnlinetime(resultset.getString("Onlinetime"));
-							produkt.setStatus(resultset.getString("Status"));
-							produkt.setIdProdukt(resultset.getInt("idProdukte"));
-							produkt.setDatum(resultset.getString("Datum"));
-							verkaufer.setIdVerkaufer(resultset.getInt("idVerkaufer"));
-							person.setId(resultset.getInt("idPerson"));
-							person.setEmail(resultset.getString("Email"));
-							unternehm.setIdUnternehmen(resultset.getInt("idUnternehmen"));
-							unternehm.setName(resultset.getString("Nameunternehmen"));
-							unternehm.setStandort(resultset.getString("Standort"));
-							unternehm.setStadt(resultset.getString("Stadt"));
-							unternehm.setGeolatidude(resultset.getString("Latitude"));
-							unternehm.setGeolongitude(resultset.getString("Longitude"));
-							unternehm.setVerkaufer(verkaufer);
-							verkaufer.setUnternehmen(unternehm);
-
-							verkaufer.setPerson(person);
-							produkt.setVerkaufer(verkaufer);
-							list.add(produkt);
-						}
-					}else {
-						
-						produkt = new Produkt();
-						verkaufer = new Verkaufer();
-						unternehm = new Unternehmen();
-						person = new Person();
-						produkt.setIdProdukt(resultset.getInt("idProdukte"));
-						produkt.setName(resultset.getString("Nameprodukte"));
-						produkt.setBeschreibung(resultset.getString("Beschreibung"));
-						produkt.setMarke(resultset.getString("Marke"));
-						produkt.setPreis(resultset.getString("Preis"));
-						produkt.setWährung(resultset.getString("W�hrung"));
-						produkt.setMenge(resultset.getString("Menge"));
-						produkt.setMenge(resultset.getString("Mengeeinheit"));
-						produkt.setKategorie(resultset.getString("Kategorie"));
-						produkt.setDauerbisabholung(resultset.getString("Dauerbisabholung"));
-						produkt.setOnlinebis(resultset.getString("Onlinebis"));
-						produkt.setAblaufdatum(resultset.getString("Ablaufdatum"));
-						produkt.setOnlinetime(resultset.getString("Onlinetime"));
-						produkt.setStatus(resultset.getString("Status"));
-						produkt.setIdProdukt(resultset.getInt("idProdukte"));
-						produkt.setDatum(resultset.getString("Datum"));
-						verkaufer.setIdVerkaufer(resultset.getInt("idVerkaufer"));
-						person.setId(resultset.getInt("idPerson"));
-						person.setEmail(resultset.getString("Email"));
-						unternehm.setIdUnternehmen(resultset.getInt("idUnternehmen"));
-						unternehm.setName(resultset.getString("Nameunternehmen"));
-						unternehm.setStandort(resultset.getString("Standort"));
-						unternehm.setStadt(resultset.getString("Stadt"));
-						unternehm.setGeolatidude(resultset.getString("Latitude"));
-						unternehm.setGeolongitude(resultset.getString("Longitude"));
-						unternehm.setVerkaufer(verkaufer);
-						verkaufer.setUnternehmen(unternehm);
-
-						verkaufer.setPerson(person);
-						produkt.setVerkaufer(verkaufer);
-						list.add(produkt);
-					}
-					
-					
-				}
-			}
-
-
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return list;
-	}
+	
 	//Berechnung des Abstands zwischen zwei location
 	public double abstand(double lng1, double lat1,double lng2, double lat2) {
 		double ab = (Math.acos(Math.sin(Math.toRadians(lat1))*Math.sin(Math.toRadians(lat2)) + Math.cos(Math.toRadians(lat1))*Math.cos(Math.toRadians(lat2))*Math.cos(Math.toRadians(lng1-lng2)))*6367445)/1000;		
@@ -678,7 +488,7 @@ public class userDAO {
 				produkt.setBeschreibung(resultset.getString("Beschreibung"));
 				produkt.setMarke(resultset.getString("Marke"));
 				produkt.setPreis(resultset.getString("Preis"));
-				produkt.setWährung(resultset.getString("W�hrung"));
+				produkt.setWährung(resultset.getString("Währung"));
 				produkt.setMenge(resultset.getString("Menge"));
 				produkt.setMenge(resultset.getString("Mengeeinheit"));
 				produkt.setKategorie(resultset.getString("Kategorie"));
@@ -736,31 +546,10 @@ public class userDAO {
 	}
 
 
-	public boolean insertInToWarenkob (int idkaufer,int idprodukt,String Menge,String Status,String Datum) {
-		request ="INSERT INTO warenkob(Menge,idKaufer,idProdukte,Status,Datum,notification,confirmkunde,confirmverkaufer,dauerabhol,bewertet,warnungcount,latitudek,longitudek)"
-				+ " VALUES(?,?,?,?,?,'-','-','-','-','-','-','-','-')";
-		try {
-			preparedstatement = DBconnection.getInstance().getPreparedStatement(request);
-			preparedstatement.setString(1, Menge);
-			preparedstatement.setInt(2, idkaufer);
-			preparedstatement.setInt(3, idprodukt);
-			preparedstatement.setString(4, Status);
-			preparedstatement.setString(5, Datum);
-			if(preparedstatement.executeUpdate()==1) {
-				return true;
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-
-		return false;
-	}
-
+	
 	public List<Warenkob> getListBestellungKunde(int idKaufer){
 		List<Warenkob> list = new ArrayList<>();
-		request="SELECT * FROM warenkob WHERE idKaufer=? AND confirmkunde='-' ";
+		request="SELECT * FROM warenkob WHERE idKaufer=? ";
 		Produkt produkt =null;
 		Kaufer kaufer =new Kaufer();
 		Warenkob warenkob = null;
@@ -1590,5 +1379,45 @@ public class userDAO {
 		return rueck;
 	}
 	
+	public Map<String,Object> getGroupBuyers(String name,String vorname,String email,String pseudo){
+		Map<String,Object>map = new HashMap<>();
+		List <Kaufer>list = new ArrayList<>();
+		userDAO dao1 = new userDAO();
+		String request = "SELECT * FROM person as pers INNER JOIN kaufer as kau ON pers.idPerson= kau.idPerson "
+				+ "WHERE pers.nameperson LIKE ? OR pers.vorname LIKE ? OR pers.email LIKE ? OR kau.pseudo LIKE ? ";
+	
+		int count=0;
+		Kaufer kaufer= null; 
+		try {
+			PreparedStatement preparedstatement = DBconnection.getInstance().getPreparedStatement(request);
+			preparedstatement.setString(1, "%"+name+"%");
+			preparedstatement.setString(2, "%"+vorname+"%");
+			preparedstatement.setString(3, "%"+email+"%");
+			preparedstatement.setString(4, "%"+pseudo+"%");
+			
+			ResultSet resultset = preparedstatement.executeQuery();
+			while (resultset.next()) {
+				kaufer = new Kaufer();
+				kaufer.setIdKaufer(resultset.getInt("idKaufer"));
+				kaufer.setPseudo(resultset.getString("pseudo"));
+				kaufer.setListwarenkob( getListBestellungKunde(resultset.getInt("idKaufer")));
+				kaufer.setListrechnung(getRechnung("kaufer", resultset.getInt("idKaufer"), null));
+				kaufer.setPerson(getPerson(resultset.getString("email")));
+				
+				
+				list.add(kaufer);
+				count++;
+			}
+			map.put("count", count);
+			map.put("buyers", list);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println("Size :"+list.size());
+		return map;
+	}
 
 }

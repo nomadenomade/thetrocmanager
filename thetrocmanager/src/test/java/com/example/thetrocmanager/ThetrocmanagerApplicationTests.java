@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.example.DAO.VerkauferDAO;
+import com.example.DAO.userDAO;
+import com.example.models.Kaufer;
 import com.example.models.Verkaufer;
 
 @SpringBootTest
@@ -24,4 +26,10 @@ class ThetrocmanagerApplicationTests {
 		assertEquals(0,list.size());
 	}
 
+	@Test
+	void getGroupkaufer() {
+		userDAO dao = new userDAO();
+		List<Kaufer> list = (List<Kaufer>)(dao.getGroupBuyers("blais", null, null, null).get("buyers"));
+		assertEquals(0,list.size());
+	}
 }

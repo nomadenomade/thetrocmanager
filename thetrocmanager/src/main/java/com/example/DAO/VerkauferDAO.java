@@ -31,39 +31,7 @@ public class VerkauferDAO {
 	private PreparedStatement preparedstatement;
 	private String request;
 	
-	public boolean produktErstellung(Produkt produkt, int idVerkaufer) {
-		boolean rueckgabe=false;
-		request= "INSERT INTO produkte(Marke,Preis,Kategorie,Nameprodukte,Menge,Mengeeinheit,Beschreibung,Ablaufdatum,Onlinebis,Onlinetime,Dauerbisabholung,Status,W�hrung,idVerkaufer) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-		try {
-			preparedstatement = DBconnection.getInstance().getPreparedStatement(request);
-			preparedstatement.setString(1,produkt.getMarke());
-			preparedstatement.setString(2,produkt.getPreis());
-			preparedstatement.setString(3,produkt.getKategorie());
-			preparedstatement.setString(4,produkt.getName());
-			preparedstatement.setString(5,produkt.getMenge());
-			preparedstatement.setString(6, produkt.getMengeeinheit());
-			preparedstatement.setString(7,produkt.getBeschreibung());
-			preparedstatement.setString(8,produkt.getAblaufdatum());
-			preparedstatement.setString(9,produkt.getOnlinebis());
-			preparedstatement.setString(10,produkt.getOnlinetime());
-			preparedstatement.setString(11,produkt.getDauerbisabholung());
-			preparedstatement.setString(12,produkt.getStatus());
-			preparedstatement.setString(13,produkt.getWährung());
-			preparedstatement.setInt(14,idVerkaufer);
-			
-			int result = preparedstatement.executeUpdate();
-			if(result==1) {
-				rueckgabe=true;
-			}
-			
-		} catch (SQLException e) {
-			
-		}finally {
-			DBconnection.getInstance().closeConnection();
-		}
-		
-		return rueckgabe;
-	}
+	
 	
 	public Verkaufer getVerkaufer(Person person) {
 		Verkaufer verkaufer = new Verkaufer();
@@ -124,7 +92,7 @@ public class VerkauferDAO {
 			e.printStackTrace();
 		}
 		
-		System.out.println("Size :"+list.size());
+	
 		return map;
 	}
 	public Map<String,Object> getVerkaufer(String email,String name,String vorname, String nameunternehmen){
@@ -206,28 +174,7 @@ public class VerkauferDAO {
 		return list;
 	}
 	
-	public boolean bilderProduktSpeichern(int idProdukt,Foto foto) {
-		boolean check = false;
-		request = "INSERT INTO Bilderprodukt(Namebildprodukt,Groesse,Extension,Inhalt,idProdukte) VALUES(?,?,?,?,?)";
-		
-		try {
-			preparedstatement =DBconnection.getInstance().getPreparedStatement(request);
-			preparedstatement.setString(1, foto.getName());
-			preparedstatement.setString(2,String.valueOf(foto.getSize()));
-			preparedstatement.setString(3, foto.getExtension());
-			preparedstatement.setBinaryStream(4, foto.getInhalt());
-			preparedstatement.setInt(5, idProdukt);
-			int result = preparedstatement.executeUpdate();
-			if(result==1) {
-				check=true;
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return check;
-	}
+	
 	
 	public List<Foto> getBilderProdukt(Produkt produkt) {
 		List<Foto>list = new ArrayList<>();
@@ -292,31 +239,8 @@ public class VerkauferDAO {
 		return foto;
 	}
 	
-	public boolean isAnzahlBilderErreicht(int idProdukt) {
-		boolean rueckgabe = false;
-		int rueck=0;
-		request ="SELECT * FROM bilderprodukt WHERE idProdukte=?";
-		try {
-			preparedstatement = DBconnection.getInstance().getPreparedStatement(request);
-			preparedstatement.setInt(1, idProdukt);
-			resultset = preparedstatement.executeQuery();
-			while(resultset.next()) {
-				rueck++;
-			}
-			
-			if(rueck<4) {
-				rueckgabe = true;
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally {
-			DBconnection.getInstance().closeConnection();
-		}
-		return rueckgabe;
-	}
 	
-	
+		
 	public Foto getFirstFotoProdukt(int idprodukt) {
 		request ="SELECT * FROM bilderprodukt WHERE idProdukte =?";
 		Foto foto = null;
@@ -342,36 +266,6 @@ public class VerkauferDAO {
 		return foto;
 	}
 	
-	public boolean produktVeroeffentlichen(int idprodukt,String funktion) {
-		SimpleDateFormat dateformat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-		
-		if(funktion.equals("online")) {
-			request ="UPDATE produkte SET Status='online' WHERE idprodukte=?";
-		}else if(funktion.equals("offline")) {
-			request ="UPDATE produkte SET Status='offline' WHERE idprodukte=?";
-		}
-		
-		boolean rueck= false;
-		try {
-			preparedstatement = DBconnection.getInstance().getPreparedStatement(request);
-			preparedstatement.setInt(1, idprodukt);
-			if(preparedstatement.executeUpdate()==1) {
-				
-				request="UPDATE produkte SET Datum= ? WHERE idprodukte=?";
-				preparedstatement = DBconnection.getInstance().getPreparedStatement(request);
-				preparedstatement.setString(1, dateformat.format(new Date()));
-				preparedstatement.setInt(2, idprodukt);
-				if(preparedstatement.executeUpdate()==1) {
-					rueck=true;
-				}
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return rueck;
-	}
 	
 	public boolean produktloeschen(int idprodukt,String userEmail) {
 		//zuerst alle bilder physich l�schen
@@ -420,47 +314,7 @@ public class VerkauferDAO {
 		return check;
 	}
 	
-	public List<Warenkob> getListAktuellBestellung(int idVerkaufer){
-		request = "SELECT * FROM warenKob AS wa "
-				+ "INNER JOIN produkte AS pr "
-				+ "ON wa.idProdukte = pr.idProdukte "
-				+ "INNER JOIN kaufer AS kau "
-				+ "ON wa.idKaufer= kau.idKaufer "
-				+ "INNER JOIN person AS pers "
-				+ "ON pers.idPerson = kau.idPerson "
-				+ "INNER JOIN verkaufer AS ver "
-				+ "ON ver.idVerkaufer = pr.idVerkaufer "
-				+ "WHERE ver.idVerkaufer = ? AND wa.Status='austehend'";
-		Warenkob warenkob ;
-		List <Warenkob> list = new ArrayList<>();
-		List <Integer> idWarenkob = new ArrayList<>();
-		 
-		try {
-			preparedstatement = DBconnection.getInstance().getPreparedStatement(request);
-			preparedstatement.setInt(1, idVerkaufer);
-			ResultSet resultset = preparedstatement.executeQuery();
-			
-			while(resultset.next()) {
-				warenkob = new Warenkob();
-				warenkob.setIdWarenkob(resultset.getInt("idWarenkob"));
-				warenkob.setIdKaufer(new userDAO().getKaufer(new userDAO().getPerson(resultset.getInt("idPerson"))));
-				warenkob.setProdukt(new userDAO().getProdukt(resultset.getInt("idProdukte")));
-				warenkob.setMenge(resultset.getString("Menge"));
-				if(!idWarenkob.contains(resultset.getInt("idWarenkob"))) {
-					idWarenkob.add(resultset.getInt("idWarenkob"));
-					list.add(warenkob);
-				}
-				
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		
-		return list;
-	}
+	
 	
 	public boolean updateWarenkob(String date,String status,int idWarenkob) {
 		request="UPDATE warenkob SET Status=?, Datum=? WHERE idWarenkob=?";

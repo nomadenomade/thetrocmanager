@@ -7,10 +7,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.DAO.VerkauferDAO;
+import com.example.DAO.userDAO;
+import com.example.models.Kaufer;
 import com.example.models.Produkt;
 import com.example.models.Verkaufer;
 
@@ -20,6 +23,9 @@ public class controller {
 
 	@Autowired
 	VerkauferDAO dao;
+	
+	@Autowired
+	userDAO dao2;
 
 	@GetMapping("/")
 	public ModelAndView getHome() {
@@ -137,4 +143,65 @@ public class controller {
 				return result;
 		
 	}
+	
+	@GetMapping("/buyers")
+	public String getbuyers(@RequestParam("name")String name,@RequestParam("vorname")String vorname,@RequestParam("email") String email,@RequestParam("pseudo") String pseudo) {
+		
+		List<Kaufer> listkaufer = (List<Kaufer>) (dao2.getGroupBuyers(name, vorname, email, pseudo).get("buyers")) ;
+				
+				String result = "<div class=\"table-responsive\" id=\"tabcontent\">\r\n";
+						result+= "					<table class=\"table table-dark table-stripped\">\r\n";
+						result+="						<thead>\r\n";
+						result+= "							<tr>\r\n";
+						result+= "								<th>firstname</th>\r\n";
+						result+="								<th>lastname</th>\r\n";
+						result+="								<th>email</th>\r\n";
+						result+="								<th>phone</th>\r\n";
+						result+="								<th>pseudo</th>\r\n";
+						result+="								<th>status</th>\r\n";
+						result+="								<th>date registration</th>\r\n";
+						result+="								<th>activate</th>\r\n";
+						result+="								<th>deactivate</th>\r\n";
+						result+="								<th>delete</th>\r\n";
+						result+="								<th>detail</th>\r\n";
+						result+="							</tr>\r\n";
+						result+="						</thead>\r\n";
+						result+="						<tbody>\r\n";
+						for(Kaufer kaufer: listkaufer) {
+							
+								
+							result+="							<tr >\r\n";
+							result+="								<td>"+kaufer.getPerson().getVorname()+"</td>\r\n";
+							result+="								<td>"+kaufer.getPerson().getName()+"</td>\r\n";
+							result+="								<td>"+kaufer.getPerson().getEmail()+"</td>\r\n";
+							result+="								<td>"+kaufer.getPerson().getTelephone()+"</td>\r\n";
+							result+="								<td>"+kaufer.getPseudo()+"</td>\r\n";		
+							result+="								<td></td>\r\n";
+							result+="								<td>"+kaufer.getPerson().getDatum()+"</td>\r\n";
+							result+="								<td>\r\n";
+							result+="									<button ng-click=\"activate("+kaufer.getIdKaufer()+")\" style=\"width:150px; border:1px solid #228B22;border-radius:200px; padding:2px; font-size:0.9em;background-color:#228B22;color: white; margin:auto;\">activate</button>\r\n";
+							result+="								</td>\r\n";
+							result+="								<td>\r\n";
+							result+="									<button ng-click=\"deactivate("+kaufer.getIdKaufer()+")\" style=\"width:150px; border:1px solid #FF8C00;border-radius:200px; padding:2px; font-size:0.9em;background-color:#FF8C00;color: black; margin:auto;\">deactivate</button>\r\n";
+							result+="								</td>\r\n";
+							result+="								<td>\r\n";
+							result+="									<button ng-click=\"delete("+kaufer.getIdKaufer()+")\" style=\"width:150px; border:1px solid red;border-radius:200px; padding:2px; font-size:0.9em;background-color:red;color: white; margin:auto;\">delete</button>\r\n";
+							result+="								</td>\r\n";
+							result+="								<td>\r\n";
+							result+="									<button ng-click=\"detail("+kaufer.getIdKaufer()+")\" style=\"width:150px; border:1px solid #6495ED;border-radius:200px; padding:2px; font-size:0.9em;background-color:#6495ED;color: white; margin:auto;\">details</button>\r\n";
+							result+="								</td>\r\n";
+							result+="							</tr>\r\n";
+								
+						}
+						result+="						</tbody>\r\n";
+						result+="					</table>\r\n";
+						result+="				</div>\r\n";
+						result+="			";
+						
+						
+				return result;
+		
+		
+	}
+	
 }

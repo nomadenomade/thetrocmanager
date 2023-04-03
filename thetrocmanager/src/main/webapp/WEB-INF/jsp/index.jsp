@@ -110,13 +110,34 @@
 		
 		function searchfunction(){
 			let xml = new XMLHttpRequest();
-			xml.onreadystatechange = function(){
-				if(this.readyState==4 && this.status==200){
-					document.getElementById("tablecontent").innerHTML=this.responseText;
-				}
-			};
-			xml.open("GET","/all_sellers",false);
-			xml.send();
+			let type = document.getElementById("type").value;
+			let name = document.getElementById("name").value;
+			let vorname = document.getElementById("vorname").value;
+			let email = document.getElementById("email").value;
+			
+			if(type=="buyers"){
+				let pseudo = document.getElementById("pseudo").value;
+				
+				xml.onreadystatechange = function(){
+					if(this.readyState==4 && this.status==200){
+						document.getElementById("tablecontent").innerHTML=this.responseText;
+					}
+				};
+				xml.open("GET","/buyers?name="+name+"&vorname="+vorname+"&email="+email+"&pseudo="+pseudo,false);
+				xml.send();
+			}else if(type=="sellers"){
+				let company = document.getElementById("nameunternehmen").value;
+				xml.onreadystatechange = function(){
+					if(this.readyState==4 && this.status==200){
+						document.getElementById("tablecontent").innerHTML=this.responseText;
+					}
+				};
+				xml.open("GET","/sellers?name="+name+"&vorname="+vorname+"&email="+email+"&nameunternehmen="+company,false);
+				xml.send();
+			}else{
+				
+			}
+			
 		}
 	</script>
 </body>

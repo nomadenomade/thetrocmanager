@@ -20,7 +20,26 @@ public class Kaufer {
 	private String idbrowser;
 	
 	private List <Bewertung>listbewertung;
-	
+	private List <Rechnung>listrechnung;
+	public List<Rechnung> getListrechnung() {
+		return listrechnung;
+	}
+
+
+	public void setListrechnung(List<Rechnung> listrechnung) {
+		this.listrechnung = listrechnung;
+	}
+
+
+	public List<Warenkob> getListwarenkob() {
+		return listwarenkob;
+	}
+
+
+	public void setListwarenkob(List<Warenkob> listwarenkob) {
+		this.listwarenkob = listwarenkob;
+	}
+	private List <Warenkob>listwarenkob;
 	
 	public List<Bewertung> getListbewertung() {
 		return listbewertung;
