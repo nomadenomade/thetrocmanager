@@ -40,6 +40,7 @@ public class controller {
 
 		List<Verkaufer> list = (List<Verkaufer>) dao.getAllVerkaufer().get("allsellers");
 		for(Verkaufer ver: list) {
+			//in Json verwandelt
 			json1 = new JSONObject();
 			List<Object>listprodukt = new ArrayList<>();
 			json1.put("name", ver.getPerson().getName());
@@ -51,7 +52,7 @@ public class controller {
 			json1.put("datum", ver.getPerson().getDatum());
 			json1.put("telefon", ver.getPerson().getTelephone());
 			json1.put("idverkaufer", ver.getIdVerkaufer());
-
+		
 			
 			if(ver.getUnternehmen()!=null) {
 				json1.put("nameunternehmen", ver.getUnternehmen().getName());
